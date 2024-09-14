@@ -8,7 +8,11 @@ from typing import Tuple, Type, List
 import django.test.client
 import pytest
 import pytz
+<<<<<<< HEAD
 from django.db.models import Model, ImageField, DateTimeField
+=======
+from django.db.models import Model, ImageField
+>>>>>>> c57db80 (handle temp files and fix bug with testing creation times (#2))
 from django.forms import BaseForm
 from django.http import HttpResponse
 from django.utils import timezone
