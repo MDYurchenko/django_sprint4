@@ -2,11 +2,22 @@ from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from .models import Category, Post
 from django.utils import timezone
+from django.views.generic import ListView
 
 NUMBER_OF_POST_ON_INDEX_PAGE = 5
 
 
-def index(request: HttpRequest) -> HttpResponse:
+class PostListView(ListView):
+    model = Post
+    ordering = 'created_at'
+    paginate_by = NUMBER_OF_POST_ON_INDEX_PAGE
+    template_name = 'blog/index.html'
+
+    def get_queryset(self):
+        return Post.published_posts.get_published_posts()
+
+
+def index(request: HttpRequest) -> HttpResponse:  # удалить, не используется
     """
     Функция для отображения главной страницы. На ней кратко отображена
     информация о последних постах.

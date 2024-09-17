@@ -20,6 +20,7 @@ DEFAULT_APPS = [
 USER_APPS = [
     'blog.apps.BlogConfig',
     'pages.apps.PagesConfig',
+    'users.apps.UsersConfig'
 ]
 
 EXTERNAL_APPS = [
@@ -64,6 +65,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
