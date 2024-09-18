@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from .models import Category, Post
 from django.utils import timezone
-from django.views.generic import ListView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 
 NUMBER_OF_POST_ON_INDEX_PAGE = 5
 
@@ -17,22 +18,30 @@ class PostListView(ListView):
         return Post.published_posts.get_published_posts()
 
 
-def index(request: HttpRequest) -> HttpResponse:  # удалить, не используется
-    """
-    Функция для отображения главной страницы. На ней кратко отображена
-    информация о последних постах.
-    :param request: HttpRequest
-    :return:
-    """
-    post_list = Post.published_posts.get_published_posts(
+class CategoryPostList(ListView):
+    model = Post
+    ordering = 'created_at'
+    paginate_by = NUMBER_OF_POST_ON_INDEX_PAGE
+    template_name = 'blog/category.html'
+    allow_empty = False
 
-    ).order_by(
-        'created_at'
-    )[:NUMBER_OF_POST_ON_INDEX_PAGE]
-    return render(request,
-                  'blog/index.html',
-                  context={'post_list': post_list},
-                  status=200)
+    def get_queryset(self):
+        return Post.published_posts.get_published_posts().filter(category__slug=self.kwargs['category_slug'])
+
+
+class PostDetail(DetailView):
+    model = Post
+    __fields__ = '__all__'
+    template_name = 'blog/create.html'
+    reverse_lazy('blog:profile')
+
+
+class PostCreateView(CreateView):
+    model = Post
+
+
+class PostUpdateView(UpdateView):
+    pass
 
 
 def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
@@ -55,22 +64,6 @@ def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
                       status=200)
     except Post.DoesNotExist:
         return HttpResponseNotFound('<h1>404 Page not found</h1>')
-    # я не использовать  get_object_or_404 потому что,
-    # возвращая HttpResponseNotFound
-    # у меня как будто больше возможностей кастомизировать страинцу
-    # с ответом
-    # только вот ещё есть HttpResponseBadRequest со статус-кодом 400,
-    # и как
-    # будто мне бы добавить проверку на то, что передается в качестве
-    # post_id:
-    # если формат неверный, то вернуть 400, а если формат верный,
-    # но такого поста - нет,
-    # то вернуть 404. Но я не знаю: просто на принадлежность к int
-    # проверить post_id или
-    # как? pydantic с джангой используют? Или все моделях заложено?
-    # Ещё не понял, как в менеджер передать post_id.
-    # Для списка всех постов менеджер
-    # написал.
 
 
 def category_posts(request: HttpRequest, category_slug: str) -> HttpResponse:
@@ -99,3 +92,21 @@ def category_posts(request: HttpRequest, category_slug: str) -> HttpResponse:
                       status=200)
     except Category.DoesNotExist:
         return HttpResponseNotFound('<h1>404 Page not found</h1>')
+
+
+def index(request: HttpRequest) -> HttpResponse:  # удалить, не используется
+    """
+    Функция для отображения главной страницы. На ней кратко отображена
+    информация о последних постах.
+    :param request: HttpRequest
+    :return:
+    """
+    post_list = Post.published_posts.get_published_posts(
+
+    ).order_by(
+        'created_at'
+    )[:NUMBER_OF_POST_ON_INDEX_PAGE]
+    return render(request,
+                  'blog/index.html',
+                  context={'post_list': post_list},
+                  status=200)

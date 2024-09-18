@@ -24,7 +24,7 @@ USER_APPS = [
 ]
 
 EXTERNAL_APPS = [
-
+    'django_bootstrap5'
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + USER_APPS + EXTERNAL_APPS
