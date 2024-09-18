@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import index, post_detail, category_posts, PostListView, PostDetail, CategoryPostList, \
     PostCreateView, PostUpdateView
-from ..users.views import UserDetailView
+from users.views import UserDetailView
 
 app_name = 'blog'
 
@@ -15,6 +15,6 @@ urlpatterns = [
     path('category/<slug:category_slug>/', CategoryPostList.as_view(), name='category_posts'),
     path('posts/create/', PostCreateView.as_view(), name='create_post'),
     path('posts/<int:post_id>/edit/', PostUpdateView.as_view(), name='edit_post'),
-    path('profile/<int:username>', UserDetailView.as_view(), name='profile'),
+    path('profile/<username>/', UserDetailView.as_view(), name='profile'),
 
 ]

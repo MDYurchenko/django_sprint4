@@ -11,5 +11,5 @@ def simple_view(request):
 
 urlpatterns += [
     path(route='auth/register/', view=simple_view, name='register'),
-    path(route='profile/<slug:username>/', view=simple_view, name='user_profile'),
+    #    path(route='profile/<slug:username>/', view=simple_view, name='user_profile'),
 ]
