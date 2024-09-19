@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.urls import reverse, reverse_lazy
 
 MAX_TITLE_LENGHT = 256
 
@@ -96,6 +97,9 @@ class Post(BaseModel):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('post_detail', kwargs={'post_id': self.pk})
 
 
 class Category(BaseModel):

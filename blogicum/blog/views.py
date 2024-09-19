@@ -32,16 +32,23 @@ class CategoryPostList(ListView):
 class PostDetail(DetailView):
     model = Post
     __fields__ = '__all__'
-    template_name = 'blog/create.html'
-    reverse_lazy('blog:profile')
+    pk_url_kwarg = 'post_id'
+    template_name = 'blog/detail.html'
+    success_url = reverse_lazy('blog:profile')
 
 
 class PostCreateView(CreateView):
     model = Post
+    __fields__ = '__all__'
+    template_name = 'blog/create.html'
+    success_url = reverse_lazy('blog:post_detail')
 
 
 class PostUpdateView(UpdateView):
-    pass
+    model = Post
+    __fields__ = '__all__'
+    template_name = 'blog/create.html'
+    success_url = reverse_lazy('blog:post_detail')
 
 
 def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:

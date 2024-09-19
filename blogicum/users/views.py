@@ -1,5 +1,11 @@
 from .models import CustomUser
 from django.views.generic import CreateView, DetailView, UpdateView
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+
+
+class UserMixin():
+    pass
 
 
 class UserDetailView(DetailView):
@@ -11,8 +17,9 @@ class UserDetailView(DetailView):
 
 
 class UserCreateView(CreateView):
-    model = CustomUser
+    form_class = UserCreationForm
     template_name = 'registration/registration_form.html'
+    success_url = reverse_lazy('index')
 
 
 class UserUpdateView(UpdateView):
