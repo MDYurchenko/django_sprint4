@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.urls import reverse, reverse_lazy
+from users.models import CustomUser
 
 MAX_TITLE_LENGHT = 256
 
@@ -151,3 +152,36 @@ class Location(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('blog:post_detail', kwargs={'post_id': self.pk})
+
+
+class Comment(models.Model):
+    text = models.TextField(blank=False,
+                            null=False,
+                            verbose_name='Текст комментария',
+                            help_text='Введите комментарий',
+                            )
+    author = models.ForeignKey(to=CustomUser,
+                               on_delete=models.CASCADE,
+                               related_name='comments',
+                               blank=False,
+                               null=False,
+                               verbose_name='Автор комментария',
+                               )
+    post = models.ForeignKey(to=Post,
+                             on_delete=models.CASCADE,
+                             related_name='comments',
+                             blank=False,
+                             null=False,
+                             verbose_name='Комментируемый пост',
+                             )
+    created_at = models.DateTimeField(blank=False,
+                                      null=False,
+                                      auto_now_add=True,
+                                      verbose_name='Добавлено',
+                                      help_text='Автоматически генерируемое поле.')
+
+    class Meta:
+        ordering = ('created_at',)

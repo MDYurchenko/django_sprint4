@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
-from .models import Category, Post
+from .models import Category, Post, Comment
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
+from .forms import CreateCommentForm, CreatePostForm
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 
 NUMBER_OF_POST_ON_INDEX_PAGE = 5
 
@@ -36,9 +39,18 @@ class PostDetail(DetailView):
     template_name = 'blog/detail.html'
     success_url = reverse_lazy('blog:profile')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = CreateCommentForm()
+        context["comments"] = (
+            self.get_object().comments.prefetch_related("author").all()
+        )
+        return context
+
 
 class PostCreateView(CreateView):
     model = Post
+    form_class = CreatePostForm
     __fields__ = '__all__'
     template_name = 'blog/create.html'
     success_url = reverse_lazy('blog:post_detail')
@@ -117,3 +129,44 @@ def index(request: HttpRequest) -> HttpResponse:  # удалить, не исп�
                   'blog/index.html',
                   context={'post_list': post_list},
                   status=200)
+
+
+class CommentCreateView(CreateView):
+    model = Comment
+    post = None
+    form_class = CreateCommentForm
+
+    # template_name = 'blog/includes/comments.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.birthday = get_object_or_404(Post, pk=kwargs['post_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.post = self.post
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("blog:post_detail", kwargs={"pk": self.kwargs["post_id"]})
+
+
+class CommentUpdateView(UpdateView):
+    model = Comment
+    form_class = CreateCommentForm
+    post = None
+    template_name = 'blog/comment.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        print('in_dispatch')
+        self.post = get_object_or_404(Post, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.post = self.request.post
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('blog:post_detail',
+                       kwargs={'pk': self.post.pk})

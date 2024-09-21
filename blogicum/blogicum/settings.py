@@ -20,7 +20,7 @@ DEFAULT_APPS = [
 USER_APPS = [
     'blog.apps.BlogConfig',
     'pages.apps.PagesConfig',
-    'users.apps.UsersConfig'
+    'users.apps.UsersConfig',
 ]
 
 EXTERNAL_APPS = [

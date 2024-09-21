@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Post, Category, Location
+from .models import Post, Category, Location, Comment
+
+admin.site.register(Comment)
 
 
 class PostAdmin(admin.ModelAdmin):
