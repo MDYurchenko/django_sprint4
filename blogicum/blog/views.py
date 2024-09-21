@@ -4,6 +4,7 @@ from .models import Category, Post, Comment
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CreateCommentForm, CreatePostForm
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -13,7 +14,7 @@ NUMBER_OF_POST_ON_INDEX_PAGE = 5
 
 class PostListView(ListView):
     model = Post
-    ordering = 'created_at'
+    ordering = '-created_at'
     paginate_by = NUMBER_OF_POST_ON_INDEX_PAGE
     template_name = 'blog/index.html'
 
@@ -23,7 +24,7 @@ class PostListView(ListView):
 
 class CategoryPostList(ListView):
     model = Post
-    ordering = 'created_at'
+    ordering = '-created_at'
     paginate_by = NUMBER_OF_POST_ON_INDEX_PAGE
     template_name = 'blog/category.html'
     allow_empty = False
@@ -48,125 +49,86 @@ class PostDetail(DetailView):
         return context
 
 
-class PostCreateView(CreateView):
+class PostCreateView(CreateView, LoginRequiredMixin):
     model = Post
     form_class = CreatePostForm
     __fields__ = '__all__'
     template_name = 'blog/create.html'
-    success_url = reverse_lazy('blog:post_detail')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "blog:profile",
+            kwargs={
+                "username": self.request.user.username,
+            },
+        )
 
 
-class PostUpdateView(UpdateView):
+class PostUpdateView(UpdateView, LoginRequiredMixin):
     model = Post
     __fields__ = '__all__'
     template_name = 'blog/create.html'
     success_url = reverse_lazy('blog:post_detail')
 
 
-def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:
-    """
-    Функция для отображения подробной информации об одном посте.
-    :param request: HttpRequest
-    :param id: уникальный идентификатор поста, целое число.
-    :return: HttpResponse
-    """
-    current_date = timezone.now()
-    try:
-        post = Post.objects.get(pk=post_id,
-                                is_published=True,
-                                category__is_published=True,
-                                pub_date__lte=current_date,
-                                )
-        return render(request,
-                      'blog/detail.html',
-                      context={'post': post},
-                      status=200)
-    except Post.DoesNotExist:
-        return HttpResponseNotFound('<h1>404 Page not found</h1>')
+class PostDeleteView(LoginRequiredMixin, DeleteView):
+    model = Post
+    template_name = "blog/create.html"
+    # queryset = Post.objects.select_related("author", "location", "category")
+    success_url = reverse_lazy("blog:index")
 
+    def delete(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=self.kwargs["post_id"])
+        if self.request.user != post.author:
+            return redirect("blog:index")
 
-def category_posts(request: HttpRequest, category_slug: str) -> HttpResponse:
-    """
-    Функция для отображения (в будущем) постов определенной категории.
-    На данный момент функция-заглушка.
-    :param request: HttpRequest
-    :param category_slug: уникальный идентификатор категории постов
-     в виде слага.
-    :return: HttpResponse
-    """
-    try:
-        category = Category.objects.filter(
-            is_published=True
-        ).get(slug=category_slug)
-
-        post_list = Post.published_posts.get_published_posts().filter(
-            category__slug=category_slug,
-        ).order_by('created_at')
-
-        return render(request,
-                      'blog/category.html',
-                      context={'post_list': post_list,
-                               'category': category,
-                               },
-                      status=200)
-    except Category.DoesNotExist:
-        return HttpResponseNotFound('<h1>404 Page not found</h1>')
-
-
-def index(request: HttpRequest) -> HttpResponse:  # удалить, не используется
-    """
-    Функция для отображения главной страницы. На ней кратко отображена
-    информация о последних постах.
-    :param request: HttpRequest
-    :return:
-    """
-    post_list = Post.published_posts.get_published_posts(
-
-    ).order_by(
-        'created_at'
-    )[:NUMBER_OF_POST_ON_INDEX_PAGE]
-    return render(request,
-                  'blog/index.html',
-                  context={'post_list': post_list},
-                  status=200)
+        return super().delete(request, *args, **kwargs)
 
 
 class CommentCreateView(CreateView):
     model = Comment
-    post = None
     form_class = CreateCommentForm
 
-    # template_name = 'blog/includes/comments.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.birthday = get_object_or_404(Post, pk=kwargs['post_id'])
-        return super().dispatch(request, *args, **kwargs)
-
     def form_valid(self, form):
-        form.instance.post = self.post
+        form.instance.post = get_object_or_404(Post, pk=self.kwargs['post_id'])
         form.instance.author = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("blog:post_detail", kwargs={"pk": self.kwargs["post_id"]})
+        return reverse("blog:post_detail", kwargs={"post_id": self.kwargs["post_id"]})
 
 
-class CommentUpdateView(UpdateView):
+class CommentUpdateView(UpdateView, LoginRequiredMixin):
     model = Comment
     form_class = CreateCommentForm
-    post = None
+    pk_url_kwarg = "comment_id"
     template_name = 'blog/comment.html'
 
-    def dispatch(self, request, *args, **kwargs):
-        print('in_dispatch')
-        self.post = get_object_or_404(Post, pk=kwargs['pk'])
-        return super().dispatch(request, *args, **kwargs)
-
     def form_valid(self, form):
-        form.instance.post = self.request.post
+        print('in form is valid')
+        form.instance.comment = get_object_or_404(Comment, id=self.kwargs['comment_id'])
         form.instance.author = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('blog:post_detail',
-                       kwargs={'pk': self.post.pk})
+        return reverse("blog:post_detail", kwargs={"post_id": self.kwargs["post_id"]})
+
+
+class CommentDeleteView(LoginRequiredMixin, DeleteView):
+    model = Comment
+    pk_url_kwarg = "comment_id"
+    template_name = "blog/comment.html"
+
+    def get_success_url(self):
+        return reverse("blog:post_detail", kwargs={"post_id": self.kwargs["post_id"]})
+
+    def delete(self, request, *args, **kwargs):
+        comment = get_object_or_404(Comment, pk=self.kwargs["comment_id"])
+        print(self.kwargs)
+        if self.request.user != comment.author:
+            return redirect("blog:post_detail", post_id=self.kwargs["post_id"])
+        return super().delete(request, *args, **kwargs)
