@@ -9,9 +9,6 @@ app_name = 'users'
 
 urlpatterns += [
     path(route='auth/register/', view=UserCreateView.as_view(), name='registration'),
-    path(route='login/', view=LoginView.as_view(
-        success_url=reverse_lazy("blog:profile")
-    ), name='login'),
     path(route='auth/password_change', view=PasswordChangeView.as_view(
     ), name='password_change'),
     path("auth/password_reset/", view=PasswordResetView.as_view(
