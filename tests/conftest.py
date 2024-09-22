@@ -1,7 +1,6 @@
 import os
 import re
 import time
-<<<<<<< HEAD
 from http import HTTPStatus
 from inspect import getsource
 from pathlib import Path
@@ -16,13 +15,6 @@ from typing import (
     NamedTuple,
     TypeVar,
 )
-=======
-from collections import namedtuple
-from http import HTTPStatus
-from inspect import getsource
-from pathlib import Path
-from typing import Iterable, Type, Optional, Union, Any, Tuple
->>>>>>> c57db80 (handle temp files and fix bug with testing creation times (#2))
 
 import pytest
 from django.apps import apps
@@ -355,18 +347,12 @@ def get_field_key(field_type: type, field: Field) -> Tuple[str, Optional[str]]:
         return (field_type.__name__, None)
 
 
-<<<<<<< HEAD
 @pytest.fixture(scope="session", autouse=True)
-=======
-
-@pytest.fixture(scope='session', autouse=True)
->>>>>>> c57db80 (handle temp files and fix bug with testing creation times (#2))
 def cleanup(request):
     start_time = time.time()
 
     yield
 
-<<<<<<< HEAD
     from blogicum import settings
 
     image_dir = Path(settings.__file__).parent.parent / settings.MEDIA_ROOT
@@ -381,15 +367,3 @@ def cleanup(request):
                 file_path = os.path.join(root, filename)
                 if os.path.getmtime(file_path) >= start_time:
                     os.remove(file_path)
-=======
-    from blog.models import Post
-    from blogicum import settings
-    image_dir =  Path(settings.__file__).parent.parent / settings.MEDIA_ROOT / Post.image.field.upload_to
-
-    for filename in os.listdir(image_dir):
-        if filename.endswith('.jpg') or filename.endswith('.gif'):
-            file_path = os.path.join(image_dir, filename)
-
-            if os.path.getctime(file_path) >= start_time:
-                os.remove(file_path)
->>>>>>> c57db80 (handle temp files and fix bug with testing creation times (#2))

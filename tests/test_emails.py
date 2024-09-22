@@ -4,17 +4,12 @@ from django.core.mail.backends.locmem import EmailBackend
 
 def test_gitignore():
     try:
-<<<<<<< HEAD
         with open(
             settings.BASE_DIR / ".." / ".gitignore",
             "r",
             encoding="utf-8",
             errors="ignore",
         ) as fh:
-=======
-        with open(settings.BASE_DIR / '..' / '.gitignore', 'r',
-                  encoding='utf-8', errors='ignore') as fh:
->>>>>>> c57db80 (handle temp files and fix bug with testing creation times (#2))
             gitignore = fh.read()
     except Exception as e:
         raise AssertionError(
