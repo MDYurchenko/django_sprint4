@@ -29,7 +29,7 @@ class CreatePostForm(forms.ModelForm):
         model = Post
         fields = (
             "title",
-            # "image",
+            "image",
             "text",
             "pub_date",
             "location",

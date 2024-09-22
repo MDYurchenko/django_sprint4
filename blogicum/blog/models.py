@@ -71,7 +71,7 @@ class Post(BaseModel):
                   '(можно оставить без категории).',
     )
     author = models.ForeignKey(
-        to=User,
+        to=get_user_model(),
         on_delete=models.CASCADE,
         related_name='posts',
         blank=False,
@@ -87,6 +87,9 @@ class Post(BaseModel):
         null=True,
         verbose_name='Местоположение',
         help_text='Укажите местоположение, связанное с публикацией.',
+    )
+    image = models.ImageField(
+        'Изображение', upload_to='post_images', blank=True
     )
 
     published_posts = PostListManager()

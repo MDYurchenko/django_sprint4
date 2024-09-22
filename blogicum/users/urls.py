@@ -8,7 +8,7 @@ from django.contrib.auth.views import LoginView
 app_name = 'users'
 
 urlpatterns += [
-    path(route='auth/register/', view=UserCreateView.as_view(), name='registration'),
+    path(route='auth/registration/', view=UserCreateView.as_view(), name='registration'),
     path(route='auth/password_change', view=PasswordChangeView.as_view(
     ), name='password_change'),
     path("auth/password_reset/", view=PasswordResetView.as_view(

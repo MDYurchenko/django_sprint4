@@ -9,13 +9,13 @@ from .forms import CreateCommentForm, CreatePostForm
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
-NUMBER_OF_POST_ON_INDEX_PAGE = 5
+NUMBER_OF_POST_ON_PAGE = 5
 
 
 class PostListView(ListView):
     model = Post
     ordering = '-created_at'
-    paginate_by = NUMBER_OF_POST_ON_INDEX_PAGE
+    paginate_by = NUMBER_OF_POST_ON_PAGE
     template_name = 'blog/index.html'
 
     def get_queryset(self):
@@ -25,7 +25,7 @@ class PostListView(ListView):
 class CategoryPostList(ListView):
     model = Post
     ordering = '-created_at'
-    paginate_by = NUMBER_OF_POST_ON_INDEX_PAGE
+    paginate_by = NUMBER_OF_POST_ON_PAGE
     template_name = 'blog/category.html'
     allow_empty = False
 
@@ -59,7 +59,7 @@ class PostCreateView(CreateView, LoginRequiredMixin):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-    def get_success_url(self) -> str:
+    def get_success_url(self):
         return reverse(
             "blog:profile",
             kwargs={
@@ -70,26 +70,46 @@ class PostCreateView(CreateView, LoginRequiredMixin):
 
 class PostUpdateView(UpdateView, LoginRequiredMixin):
     model = Post
-    __fields__ = '__all__'
+    fields = [
+        'title',
+        'text',
+        'pub_date',
+        'category',
+        'location',
+        'image',
+        'is_published'
+    ]
     template_name = 'blog/create.html'
     success_url = reverse_lazy('blog:post_detail')
+    pk_url_kwarg = 'post_id'
+
+    def dispatch(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=self.kwargs["post_id"])
+        if self.request.user != post.author:
+            return redirect("blog:post_detail", post_id=self.kwargs["post_id"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail',
+            kwargs={'post_id': self.object.pk}
+        )
 
 
 class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
+
     template_name = "blog/create.html"
-    # queryset = Post.objects.select_related("author", "location", "category")
     success_url = reverse_lazy("blog:index")
+    pk_url_kwarg = 'post_id'
 
-    def delete(self, request, *args, **kwargs):
-        post = get_object_or_404(Post, pk=self.kwargs["post_id"])
-        if self.request.user != post.author:
-            return redirect("blog:index")
-
-        return super().delete(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = CreatePostForm(instance=self.object)
+        return context
 
 
-class CommentCreateView(CreateView):
+class CommentCreateView(CreateView, LoginRequiredMixin):
     model = Comment
     form_class = CreateCommentForm
 
