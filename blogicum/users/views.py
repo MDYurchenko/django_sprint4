@@ -15,6 +15,13 @@ class UserDetailView(DetailView):
     slug_url_kwarg = 'username'
     slug_field = 'username'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile'] = self.get_object()
+        context['username'] = context['profile'].username
+        print(context['profile'].is_staff)
+        return context
+
 
 class UserCreateView(CreateView):
     form_class = UserCreationForm
@@ -25,3 +32,13 @@ class UserCreateView(CreateView):
 class UserUpdateView(UpdateView):
     model = CustomUser
     template_name = 'blog/user.html'
+    fields = (
+        # 'username',
+        'first_name',
+        'last_name',
+        'email',
+
+    )
+
+    def get_object(self):
+        return self.request.user
