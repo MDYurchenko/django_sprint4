@@ -1,4 +1,5 @@
 from .models import CustomUser
+from blog.models import Post
 from django.views.generic import CreateView, DetailView, UpdateView
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
@@ -10,15 +11,24 @@ class UserMixin():
 
 class UserDetailView(DetailView):
     model = CustomUser
-    __fields__ = '__all__'
+    fields = '__all__'
     template_name = 'blog/profile.html'
+
     slug_url_kwarg = 'username'
     slug_field = 'username'
 
     def get_context_data(self, **kwargs):
+        print('in context', kwargs)
         context = super().get_context_data(**kwargs)
         context['profile'] = self.get_object()
-        context['username'] = context['profile'].username
+        if self.request.user.username == self.kwargs["username"]:
+            context["page_obj"] = (
+                self.get_object().posts.prefetch_related("author").all()
+            )
+        else:
+            context["page_obj"] = (
+                self.get_object().posts.prefetch_related("author").filter(is_published=True)
+            )
         print(context['profile'].is_staff)
         return context
 
