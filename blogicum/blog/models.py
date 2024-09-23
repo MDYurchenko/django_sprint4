@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.urls import reverse
-from users.models import CustomUser
 
 MAX_TITLE_LENGHT = 256
 
@@ -11,12 +10,16 @@ User = get_user_model()
 
 class PostListManager(models.Manager):
     def get_published_posts(self):
-        current_date = timezone.now()
-        posts_list = super().get_queryset().filter(
-            pub_date__lte=current_date,
+        posts_list = super().get_queryset(
+        ).select_related(
+            "category",
+            "author",
+            "location",
+        ).filter(
+            pub_date__lte=timezone.now(),
             is_published=True,
             category__is_published=True,
-        ).all()
+        ).order_by("-pub_date")
         return posts_list
 
 
@@ -71,7 +74,7 @@ class Post(BaseModel):
                   '(можно оставить без категории).',
     )
     author = models.ForeignKey(
-        to=get_user_model(),
+        to=User,
         on_delete=models.CASCADE,
         related_name='posts',
         blank=False,
@@ -140,6 +143,11 @@ class Category(BaseModel):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self) -> str:
+        return reverse(
+            "blog:category_posts", kwargs={"category_slug": self.slug}
+        )
+
 
 class Location(BaseModel):
     name = models.CharField(
@@ -167,7 +175,7 @@ class Comment(models.Model):
                             verbose_name='Текст комментария',
                             help_text='Введите комментарий',
                             )
-    author = models.ForeignKey(to=CustomUser,
+    author = models.ForeignKey(to=get_user_model(),
                                on_delete=models.CASCADE,
                                related_name='comments',
                                blank=False,
@@ -189,3 +197,5 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ('created_at',)
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарии'

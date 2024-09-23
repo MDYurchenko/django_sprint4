@@ -29,6 +29,8 @@ EXTERNAL_APPS = [
 
 INSTALLED_APPS = DEFAULT_APPS + USER_APPS + EXTERNAL_APPS
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -40,6 +42,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'blogicum.urls'
+
+TEMPLATES_DIR = BASE_DIR / "templates"
 
 TEMPLATES = [
     {
@@ -65,8 +69,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-AUTH_USER_MODEL = 'users.CustomUser'
 
 LOGIN_REDIRECT_URL = 'blog:index'
 

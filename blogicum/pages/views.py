@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.http import HttpRequest, HttpResponse
 from django.views.generic import TemplateView
 
 
@@ -11,24 +10,6 @@ class RulesView(TemplateView):
     template_name = 'pages/about.html'
 
 
-def about(request: HttpRequest) -> HttpResponse:
-    """
-    Функция для отображения страницы "О проекте"
-    :param request: HttpRequest
-    :return: HttpResponse
-    """
-    return render(request, 'pages/about.html', context=None, status=200)
-
-
-def rules(request: HttpRequest) -> HttpResponse:
-    """
-    Функция для отображения страницы "Наши правила"
-    :param request: HttpRequest
-    :return: HttpResponse
-    """
-    return render(request, 'pages/rules.html', context=None, status=200)
-
-
 def page_not_found(request, exception):
     return render(request, 'pages/404.html', status=404)
 
@@ -38,4 +19,4 @@ def csrf_failure(request, reason=''):
 
 
 def server_error(request):
-    return render(request, 'pages/500.hmtl', status=500)
+    return render(request, 'pages/500.html', status=500)
