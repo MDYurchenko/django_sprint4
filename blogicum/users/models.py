@@ -3,9 +3,7 @@ from django.urls import reverse
 
 
 class CustomUser(AbstractUser):
-    '''
-    Кастомная расширяемая модель пользователя.
-    '''
+    """Кастомная расширяемая модель пользователя."""
 
     class Meta:
         verbose_name = 'пользователь'

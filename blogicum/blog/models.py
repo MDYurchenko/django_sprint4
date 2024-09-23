@@ -193,7 +193,8 @@ class Comment(models.Model):
                                       null=False,
                                       auto_now_add=True,
                                       verbose_name='Добавлено',
-                                      help_text='Автоматически генерируемое поле.')
+                                      help_text='Автоматически'
+                                                ' генерируемое поле.')
 
     class Meta:
         ordering = ('created_at',)
