@@ -1,7 +1,4 @@
-from django.shortcuts import render
-from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
-from .models import Category, Post, Comment
-from django.utils import timezone
+from .models import Post, Comment
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin

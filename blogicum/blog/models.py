@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from users.models import CustomUser
 
 MAX_TITLE_LENGHT = 256

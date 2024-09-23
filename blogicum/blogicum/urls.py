@@ -7,7 +7,6 @@ urlpatterns = [
     path('', include('users.urls')),
     path('', include('django.contrib.auth.urls')),
     path('', include('blog.urls', namespace='blog')),
-
 ]
 
 handler404 = 'pages.views.page_not_found'

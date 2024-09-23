@@ -3,7 +3,6 @@ from django.urls import path
 from .views import UserCreateView
 from django.contrib.auth.views import PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
-from django.contrib.auth.views import LoginView
 
 app_name = 'users'
 

@@ -1,10 +1,15 @@
 from django.shortcuts import render
-from django.http import HttpRequest, HttpResponse, HttpResponseServerError
+from django.http import HttpRequest, HttpResponse
+from django.views.generic import TemplateView
 
 
-# Вопрос про шаблоны джанго: а они вообще актуальны
-# в реальной разработке?? Насколько я понимаю, нормальные
-# взрослые приложения через DRF пишут, создавая API?
+class AboutView(TemplateView):
+    template_name = 'pages/about.html'
+
+
+class RulesView(TemplateView):
+    template_name = 'pages/about.html'
+
 
 def about(request: HttpRequest) -> HttpResponse:
     """
