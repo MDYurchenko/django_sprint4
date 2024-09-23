@@ -1,6 +1,7 @@
 from .models import Post, Comment, Category
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
+from django.views.generic import ListView, DetailView, \
+    CreateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CreateCommentForm, CreatePostForm
 from django.shortcuts import get_object_or_404, redirect
@@ -144,7 +145,8 @@ class BaseComment(LoginRequiredMixin):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("blog:post_detail", kwargs={"post_id": self.kwargs["post_id"]})
+        return reverse("blog:post_detail",
+                       kwargs={"post_id": self.kwargs["post_id"]})
 
 
 class CommentCreateView(BaseComment, CreateView):

@@ -39,14 +39,15 @@ class UserDetailView(DetailView):
         else:
             context["page_obj"] = (
                 Paginator(
-                    self.get_object().posts.prefetch_related("author").filter(
+                    self.get_object(
+
+                    ).posts.prefetch_related("author").filter(
                         pub_date__lte=timezone.now(),
                         is_published=True,
                         category__is_published=True,
                     ).annotate(
                         comment_count=Count("comments")
-                    ).order_by('-pub_date')
-                    ,
+                    ).order_by('-pub_date', ),
                     NUMBER_OF_POST_ON_PAGE,
                 ).get_page(page)
             )
