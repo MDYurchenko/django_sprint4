@@ -1,13 +1,11 @@
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model
 from django.views.generic import CreateView, DetailView, UpdateView
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.core.paginator import Paginator
 from blog.views import NUMBER_OF_POST_ON_PAGE
 from django.db.models import Count
-from django.shortcuts import redirect
 from .forms import CustomUserCreationForm
 
 
