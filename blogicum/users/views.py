@@ -11,10 +11,6 @@ from django.shortcuts import redirect
 from .forms import CustomUserCreationForm
 
 
-class UserMixin():
-    pass
-
-
 class UserDetailView(DetailView):
     model = get_user_model()
     fields = '__all__'
