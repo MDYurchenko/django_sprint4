@@ -73,7 +73,6 @@ class PostDetail(DetailView):
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = CreatePostForm
-    __fields__ = '__all__'
     template_name = 'blog/create.html'
 
     def form_valid(self, form):
@@ -158,7 +157,7 @@ class CommentEditUpdateView(BaseComment):
     template_name = 'blog/comment.html'
 
     def dispatch(self, request, *args, **kwargs):
-        comment = get_object_or_404(Comment, pk=self.kwargs["post_id"])
+        comment = get_object_or_404(Comment, pk=self.kwargs["comment_id"])
         if self.request.user != comment.author:
             return redirect("blog:post_detail", post_id=self.kwargs["post_id"])
         return super().dispatch(request, *args, **kwargs)

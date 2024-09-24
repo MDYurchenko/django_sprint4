@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, login
 from django.views.generic import CreateView, DetailView, UpdateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -7,6 +7,8 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from blog.views import NUMBER_OF_POST_ON_PAGE
 from django.db.models import Count
+from django.shortcuts import redirect
+from .forms import CustomUserCreationForm
 
 
 class UserMixin():
@@ -54,10 +56,12 @@ class UserDetailView(DetailView):
         return context
 
 
-class UserCreateView(LoginRequiredMixin, CreateView):
-    form_class = UserCreationForm
+class UserCreateView(CreateView):
+    # model = get_user_model()
+    form_class = CustomUserCreationForm
     template_name = 'registration/registration_form.html'
-    success_url = reverse_lazy('index')
+
+    success_url = reverse_lazy('blog:index')
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
@@ -68,7 +72,6 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         'first_name',
         'last_name',
         'email',
-
     )
 
     def get_object(self):
